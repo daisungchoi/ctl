@@ -10,7 +10,7 @@ resource "aws_kms_key" "cloudtrail_lake" {
 }
 
 resource "aws_cloudtrail_event_data_store" "aft" {
-  name                       = "example-event-data-store"
+  name                       = "aft-event-data-store"
   advanced_event_selector {
     name = "AllEvents"
     
