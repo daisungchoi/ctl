@@ -2,12 +2,15 @@ provider "aws" {
   region = "us-east-1" # CloudTrail Lake is a global service
 }
 
+# Check STS 
+data "aws_caller_identity" "current" {}
+
 # configure KMS encryption
 resource "aws_kms_key" "cloudtrail_lake" {
   description             = "KMS key for CloudTrail Lake encryption"
   enable_key_rotation     = true
   deletion_window_in_days = 30
-  policy                  = data.aws_iam_policy_document.cloudtrail_kms_policy.json
+  policy                  = data.aws_iam_policy_document.cloudtrail_lake_kms_policy.json
 }
 
 data "aws_iam_policy_document" "cloudtrail_kms_policy" {
@@ -36,6 +39,25 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
     resources = ["*"]
   }
 }
+
+statement {
+    sid    = "EnableCloudTrailLakeQuery"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey"
+    ]
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:aws:cloudtrail:us-east-1:${data.aws_caller_identity.current.account_id}:eventdatastore/*"]
+    }
+  }
 
 resource "aws_cloudtrail_event_data_store" "aft" {
   name                       = "aft-event-data-store"
@@ -80,7 +102,15 @@ resource "aws_iam_policy" "cloudtrail_lake_query" {
           "cloudtrail:GetQueryResults",
           "cloudtrail:DescribeQuery"
         ]
-        Resource = "*"
+        Resource = aws_cloudtrail_event_data_store.aft.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ]
+        Resource = aws_kms_key.cloudtrail_lake_kms.arn
       }
     ]
   })
