@@ -9,7 +9,7 @@ resource "aws_kms_key" "cloudtrail_lake" {
   deletion_window_in_days = 30
 }
 
-resource "aws_cloudtrail_event_data_store" "example" {
+resource "aws_cloudtrail_event_data_store" "dsnetwork" {
   name                       = "example-event-data-store"
   advanced_event_selector {
     name = "AllEvents"
@@ -66,5 +66,5 @@ resource "aws_iam_policy" "cloudtrail_lake_query" {
 
 # Output the ARN
 output "event_data_store_arn" {
-  value = aws_cloudtrail_event_data_store.example.arn
+  value = aws_cloudtrail_event_data_store.dsnetwork.arn
 }
