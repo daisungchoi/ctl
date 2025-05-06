@@ -18,6 +18,10 @@ resource "aws_cloudtrail_event_data_store" "aft" {
       field  = "eventCategory"
       equals = ["Data"]
     }
+    field_selector {
+      field  = "resources.type"
+      equals = ["AWS::S3::Object"]
+    }
   }
   
   multi_region_enabled       = true
