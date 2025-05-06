@@ -7,7 +7,20 @@ resource "aws_kms_key" "cloudtrail_lake" {
   description             = "KMS key for CloudTrail Lake encryption"
   enable_key_rotation     = true
   deletion_window_in_days = 30
+  policy                  = data.aws_iam_policy_document.cloudtrail_kms_policy.json
 }
+
+data "aws_iam_policy_document" "cloudtrail_kms_policy" {
+  statement {
+    sid       = "Enable IAM User Permissions"
+    effect    = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::797090772946:user/dchoi"]
+    }
+    actions   = ["kms:*"]
+    resources = ["*"]
+  }
 
 resource "aws_cloudtrail_event_data_store" "aft" {
   name                       = "aft-event-data-store"
