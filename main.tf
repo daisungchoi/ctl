@@ -38,9 +38,8 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
     ]
     resources = ["*"]
   }
-}
 
-statement {
+  statement {
     sid    = "EnableCloudTrailLakeQuery"
     effect = "Allow"
     principals {
@@ -58,6 +57,7 @@ statement {
       values   = ["arn:aws:cloudtrail:us-east-1:${data.aws_caller_identity.current.account_id}:eventdatastore/*"]
     }
   }
+}
 
 resource "aws_cloudtrail_event_data_store" "aft" {
   name                       = "aft-event-data-store"
