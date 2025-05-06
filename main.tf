@@ -22,6 +22,21 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
     resources = ["*"]
   }
 
+  statement {
+    sid       = "Allow CloudTrail to encrypt logs"
+    effect    = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    actions   = [
+      "kms:GenerateDataKey*",
+      "kms:Decrypt"
+    ]
+    resources = ["*"]
+  }
+}
+
 resource "aws_cloudtrail_event_data_store" "aft" {
   name                       = "aft-event-data-store"
   advanced_event_selector {
