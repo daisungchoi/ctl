@@ -10,7 +10,7 @@ resource "aws_kms_key" "cloudtrail_lake" {
   description             = "KMS key for CloudTrail Lake encryption"
   enable_key_rotation     = true
   deletion_window_in_days = 30
-  policy                  = data.aws_iam_policy_document.cloudtrail_lake_kms_policy.json
+  policy                  = data.aws_iam_policy_document.cloudtrail_kms_policy.json
 }
 
 data "aws_iam_policy_document" "cloudtrail_kms_policy" {
@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
     effect    = "Allow"
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::797090772946:user/dchoi"]
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
     actions   = ["kms:*"]
     resources = ["*"]
@@ -76,7 +76,7 @@ resource "aws_cloudtrail_event_data_store" "aft" {
   
   multi_region_enabled       = true
   organization_enabled       = true # Enable for all accounts in organization
-  retention_period           = 365 # 7 years in days
+  retention_period           = 365 # 1 year in days
   termination_protection_enabled = false
   kms_key_id = aws_kms_key.cloudtrail_lake.arn
 
@@ -110,7 +110,7 @@ resource "aws_iam_policy" "cloudtrail_lake_query" {
           "kms:Decrypt",
           "kms:DescribeKey"
         ]
-        Resource = aws_kms_key.cloudtrail_lake_kms.arn
+        Resource = aws_kms_key.cloudtrail_lake.arn
       }
     ]
   })
@@ -119,4 +119,9 @@ resource "aws_iam_policy" "cloudtrail_lake_query" {
 # Output the ARN
 output "event_data_store_arn" {
   value = aws_cloudtrail_event_data_store.aft.arn
+}
+
+# Output the ARN for KMS
+output "kms_key_arn" {
+  value = aws_kms_key.cloudtrail_lake.arn
 }
