@@ -87,7 +87,7 @@ resource "aws_cloudtrail_event_data_store" "aft" {
   
   multi_region_enabled       = true
   organization_enabled       = true # Enable for all accounts in organization
-  retention_period           = 365 # 1 year in days
+  retention_period           = 180 # 180 days
   termination_protection_enabled = false
   kms_key_id = aws_kms_key.cloudtrail_lake.arn
 
