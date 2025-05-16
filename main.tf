@@ -96,8 +96,7 @@ resource "aws_cloudtrail_event_data_store" "aft" {
   organization_enabled       = true # Enable for all accounts in organization
   retention_period           = 365 # 365 days
   termination_protection_enabled = false
-  kms_key_id = aws_kms_key.cloudtrail_lake.arn
-
+  
   # Add tags
   tags = {
     Environment = "Production"
