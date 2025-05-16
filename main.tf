@@ -13,6 +13,12 @@ resource "aws_kms_key" "cloudtrail_lake" {
   policy                  = data.aws_iam_policy_document.cloudtrail_kms_policy.json
 }
 
+# configure KMS Key Policy
+resource "aws_kms_key_policy" "cloudtrail_key_policy" {
+  key_id = "arn:aws:kms:us-east-1:797090772946:key/038382ef-779b-4623-80d3-c447355c652b"
+  policy = file("cloudtrail-kms-policy.json")
+}
+
 data "aws_iam_policy_document" "cloudtrail_kms_policy" {
   statement {
     sid       = "Enable IAM User Permissions"
