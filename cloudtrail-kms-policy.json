@@ -5,7 +5,7 @@
       "Sid": "AllowAccountRootFullAccess",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::724585721064:dchoi"
+        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:dchoi"
       },
       "Action": "kms:*",
       "Resource": "*"
@@ -24,7 +24,7 @@
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "aws:SourceAccount": "724585721064"
+          "AWS:SourceAccount" = data.aws_caller_identity.current.account_id
         }
       }
     }
