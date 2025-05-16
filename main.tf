@@ -15,7 +15,7 @@ resource "aws_kms_key" "cloudtrail_lake" {
 
 # configure KMS Key Policy
 resource "aws_kms_key_policy" "cloudtrail_lake_policy" {
-  key_id = aws_kms_key.cloudtrail_key.id
+  key_id = aws_kms_key.cloudtrail_lake.id
   policy = file("cloudtrail-kms-policy.json")
 }
 
