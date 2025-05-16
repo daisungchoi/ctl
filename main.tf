@@ -10,7 +10,39 @@ resource "aws_kms_key" "cloudtrail_lake" {
   description             = "KMS key for CloudTrail Lake encryption"
   enable_key_rotation     = true
   deletion_window_in_days = 30
-  policy                  = data.aws_iam_policy_document.cloudtrail_kms_policy.json
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Id      = "key-default-1",
+    Statement = [
+      {
+        Sid       = "AllowRootAccountFullAccess",
+        Effect    = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action    = "kms:*",
+        Resource  = "*"
+      },
+      {
+        Sid       = "AllowCloudTrailUsage",
+        Effect    = "Allow",
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        },
+        Action = [
+          "kms:GenerateDataKey*",
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ],
+        Resource = "*",
+        Condition = {
+          StringEquals = {
+            "AWS:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      }
+    ]
+  })
 }
 
 # configure KMS Key Policy
