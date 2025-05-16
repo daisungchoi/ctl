@@ -78,6 +78,7 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
 
 resource "aws_cloudtrail_event_data_store" "aft" {
   name                       = "aft-event-data-store"
+  kms_key_id                 = aws_kms_key.cloudtrail_key.arn
   advanced_event_selector {
     name = "AllEvents"
     
