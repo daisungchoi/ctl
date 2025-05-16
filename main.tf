@@ -10,11 +10,11 @@ resource "aws_kms_key" "cloudtrail_lake" {
   description             = "KMS key for CloudTrail Lake encryption"
   enable_key_rotation     = true
   deletion_window_in_days = 30
-  policy                  = data.aws_iam_policy_document.cloudtrail_kms_policy.json
+  policy                  = data.aws_iam_policy_document.cloudtrail_key_policy.json
 }
 
 # configure KMS Key Policy
-resource "aws_kms_key_policy" "cloudtrail_key_policy" {
+resource "aws_kms_key_policy" "cloudtrail_lake_policy" {
   key_id = aws_kms_key.cloudtrail_key.id
   policy = file("cloudtrail-kms-policy.json")
 }
@@ -78,7 +78,7 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
 
 resource "aws_cloudtrail_event_data_store" "aft" {
   name                       = "aft-event-data-store"
-  kms_key_id                 = aws_kms_key.cloudtrail_key.arn
+  kms_key_id                 = aws_kms_key.cloudtrail_lake.arn
   advanced_event_selector {
     name = "AllEvents"
     
