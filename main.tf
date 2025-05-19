@@ -55,7 +55,7 @@ resource "aws_cloudtrail_event_data_store" "aft" {
   advanced_event_selector {
     name = "ManagementEventsOnly"
 
-    field_selectors {
+    field_selector {
       field  = "eventCategory"
       equals = ["Management"]
     }
