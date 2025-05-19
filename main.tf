@@ -52,7 +52,7 @@ resource "aws_cloudtrail_event_data_store" "aft" {
   name       = "aft-event-data-store"
   kms_key_id = aws_kms_key.cloudtrail_lake.arn
 
-  advanced_event_selectors {
+  advanced_event_selector {
     name = "ManagementEventsOnly"
 
     field_selectors {
