@@ -8,7 +8,6 @@ resource "aws_kms_key" "cloudtrail_lake" {
   deletion_window_in_days = 7
 }
 
-# Attach a key policy to the KMS key
 resource "aws_kms_key_policy" "cloudtrail_key_policy" {
   key_id = aws_kms_key.cloudtrail_lake.id
 
@@ -16,12 +15,26 @@ resource "aws_kms_key_policy" "cloudtrail_key_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Sid       = "AllowAccountRootFullAccess",
+        Sid       = "AllowRootAccountAccess",
         Effect    = "Allow",
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
         Action    = "kms:*",
+        Resource  = "*"
+      },
+      {
+        Sid       = "AllowCloudTrailForDataStoreAccess",
+        Effect    = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action = [
+          "kms:GenerateDataKey*",
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ],
         Resource  = "*"
       },
       {
@@ -32,49 +45,10 @@ resource "aws_kms_key_policy" "cloudtrail_key_policy" {
         },
         Action    = "kms:*",
         Resource  = "*"
-      },
-      {
-        Sid       = "AllowCloudTrailServiceAccess",
-        Effect    = "Allow",
-        Principal = {
-          Service = "cloudtrail.amazonaws.com"
-        },
-        Action = [
-          "kms:GenerateDataKey*",
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:DescribeKey"
-        ],
-        Resource = "*",
-        Condition = {
-          StringEquals = {
-            "AWS:SourceAccount" = "${data.aws_caller_identity.current.account_id}"
-          }
-        }
-      },
-      {
-        Sid       = "AllowCloudTrailEventsStoreAccessViaLogs",
-        Effect    = "Allow",
-        Principal = {
-          Service = "logs.amazonaws.com"
-        },
-        Action = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ],
-        Resource = "*",
-        Condition = {
-          StringEquals = {
-            "AWS:SourceAccount" = "${data.aws_caller_identity.current.account_id}"
-          }
-        }
       }
     ]
   })
 }
-
 
 # Create a CloudTrail Event Data Store using the new KMS key
 resource "aws_cloudtrail_event_data_store" "aft" {
