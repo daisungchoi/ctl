@@ -25,6 +25,15 @@ resource "aws_kms_key_policy" "cloudtrail_key_policy" {
         Resource  = "*"
       },
       {
+        Sid       = "AllowNamedAdminUserAccess",
+        Effect    = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/my-admin-user"
+        },
+        Action    = "kms:*",
+        Resource  = "*"
+      },
+      {
         Sid       = "AllowCloudTrailUsage",
         Effect    = "Allow",
         Principal = {
