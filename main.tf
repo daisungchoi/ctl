@@ -15,35 +15,42 @@ resource "aws_kms_key_policy" "cloudtrail_key_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Sid       = "AllowRootAccountAccess",
-        Effect    = "Allow",
+        Sid    = "Enable IAM User Permissions",
+        Effect = "Allow",
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        Action    = "kms:*",
-        Resource  = "*"
+        Action = "kms:*",
+        Resource = "*"
       },
       {
-        Sid       = "AllowCloudTrailForDataStoreAccess",
-        Effect    = "Allow",
+        Sid    = "AllowCloudTrailServiceUseOfTheKey",
+        Effect = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          Service = "cloudtrail.amazonaws.com"
         },
         Action = [
-          "kms:GenerateDataKey*",
           "kms:Encrypt",
           "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
           "kms:DescribeKey"
         ],
         Resource  = "*"
       },
       {
-        Sid       = "AllowNamedAdminUserAccess",
-        Effect    = "Allow",
+        Sid    = "AllowAccountUseOfTheKey",
+        Effect = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/dchoi"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        Action    = "kms:*",
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ],
         Resource  = "*"
       }
     ]
