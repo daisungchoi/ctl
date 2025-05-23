@@ -41,6 +41,7 @@ resource "aws_kms_key_policy" "cloudtrail_key_policy" {
         },
         Action = [
           "kms:GenerateDataKey*",
+          "kms:Encrypt",
           "kms:Decrypt",
           "kms:DescribeKey"
         ],
