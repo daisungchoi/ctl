@@ -28,13 +28,13 @@ resource "aws_kms_key_policy" "cloudtrail_key_policy" {
         Sid       = "AllowNamedAdminUserAccess",
         Effect    = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/dchoi"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/my-admin-user"
         },
         Action    = "kms:*",
         Resource  = "*"
       },
       {
-        Sid       = "AllowCloudTrailUsage",
+        Sid       = "AllowCloudTrailServiceAccess",
         Effect    = "Allow",
         Principal = {
           Service = "cloudtrail.amazonaws.com"
@@ -48,13 +48,33 @@ resource "aws_kms_key_policy" "cloudtrail_key_policy" {
         Resource = "*",
         Condition = {
           StringEquals = {
-            "AWS:SourceAccount" = data.aws_caller_identity.current.account_id
+            "AWS:SourceAccount" = "${data.aws_caller_identity.current.account_id}"
+          }
+        }
+      },
+      {
+        Sid       = "AllowCloudTrailEventsStoreAccessViaLogs",
+        Effect    = "Allow",
+        Principal = {
+          Service = "logs.amazonaws.com"
+        },
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ],
+        Resource = "*",
+        Condition = {
+          StringEquals = {
+            "AWS:SourceAccount" = "${data.aws_caller_identity.current.account_id}"
           }
         }
       }
     ]
   })
 }
+
 
 # Create a CloudTrail Event Data Store using the new KMS key
 resource "aws_cloudtrail_event_data_store" "aft" {
